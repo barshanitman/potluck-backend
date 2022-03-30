@@ -26,19 +26,11 @@ class Day(database.Base):
     description = sql.Column(sql.String,nullable=False)
     openingschedule = orm.relationship('OpeningSchedule',backref='day')
 
-class SupplierType(database.Base):
+class Users(database.Base):
 
-    __tablename__ = 'suppliertype'
+    __tablename__ = 'users'
 
-    suppliertypeid = sql.Column(sql.Integer,primary_key=True,nullable=False)
-    description = sql.Column(sql.String,nullable=False)
-    supplier = orm.relationship('Supplier',backref='suppliertype')
-
-class User(database.Base):
-
-    __tablename__ = 'user'
-
-    userid = sql.Column(sql.Integer,primary_key=True,index=True)
+    usersid = sql.Column(sql.Integer,primary_key=True,index=True)
     firstname = sql.Column(sql.String,nullable=False)
     lastname = sql.Column(sql.String,nullable=False)
     email = sql.Column(sql.String,nullable=False)
@@ -46,27 +38,21 @@ class User(database.Base):
     address = sql.Column(sql.String,nullable=False)
     password = sql.Column(sql.String,nullable=False)
     paymentstatus = sql.Column(sql.Boolean,nullable=False)
+    subscriptiontypeid = sql.Column(sql.Integer,sql.ForeignKey('subscriptiontype.subscriptiontypeid'))
 
 
-    transaction = orm.relationship('Transaction',backref='user')
-
-class Supplier(database.Base):
-
-    __tablename__ = 'supplier'
-
-    supplierid = sql.Column(sql.Integer,primary_key=True,index=True)
-    name = sql.Column(sql.String,nullable=False)
-    suppliertypeid = sql.Column(sql.Integer,sql.ForeignKey('suppliertype.suppliertypeid'))
-    logourl = sql.Column(sql.String)
-
+    transaction = orm.relationship('Transaction',backref='users')
 
 class Branch(database.Base):
 
     __tablename__ = 'branch'
 
     branchid = sql.Column(sql.Integer,primary_key=True,index=True)
-    supplierid = sql.Column(sql.Integer,sql.ForeignKey('supplier.supplierid'))
+    name = sql.Column(sql.String,nullable=False)
+    anb = sql.Column(sql.BigInteger,nullable=False)
     address = sql.Column(sql.String,nullable=False)
+    state = sql.Column(sql.String,nullable=False)
+    postcode = sql.Column(sql.Integer,nullable=False)
     branchopeningschedule = orm.relationship('BranchOpeningSchedule',backref='branch')
     branchmenu = orm.relationship('BranchMenu',backref='branch')
 
@@ -95,20 +81,19 @@ class BranchMenu(database.Base):
 
     branchmenuid = sql.Column(sql.Integer,primary_key=True,index=True)
     branchid = sql.Column(sql.Integer,sql.ForeignKey('branch.branchid'))
+    description = sql.Column(sql.String,nullable=False)
     pictureurl = sql.Column(sql.String)
     submittedtime = sql.Column(sql.TIMESTAMP,server_default=func.now(),onupdate=func.current_timestamp())
     active = sql.Column(sql.Boolean,nullable=False)
-
     transaction = orm.relationship('Transaction',backref='branchmenu')
     branchmenutag = orm.relationship('BranchMenuTag',backref='branchmenu')
-
 
 class Transaction(database.Base):
 
     __tablename__ = 'transaction'
 
     transactionid =  sql.Column(sql.Integer,primary_key=True,index=True)
-    userid = sql.Column(sql.Integer,sql.ForeignKey('user.userid'))
+    usersid = sql.Column(sql.Integer,sql.ForeignKey('users.usersid'))
     branchmenuid = sql.Column(sql.Integer,sql.ForeignKey('branchmenu.branchmenuid'))
     collected = sql.Column(sql.Boolean,nullable=False)
     collectedtime = sql.Column(sql.Time)
@@ -128,7 +113,5 @@ class BranchMenuTag(database.Base):
     __tablename__ = 'branchmenutag'
 
     branchmenutagid =sql.Column(sql.Integer,primary_key=True,index=True)
-    branchmenudid = sql.Column(sql.Integer,sql.ForeignKey('branchmenu.branchmenuid'))
+    branchmenuid = sql.Column(sql.Integer,sql.ForeignKey('branchmenu.branchmenuid'))
     tagid = sql.Column(sql.Integer,sql.ForeignKey('tag.tagid'))
-
-    

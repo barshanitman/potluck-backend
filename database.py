@@ -1,4 +1,3 @@
-
 import os
 import sqlalchemy as sql 
 import sqlalchemy.ext.declarative as declarative 
